@@ -6,6 +6,8 @@ import hackathonRoutes from "./routes/hackathonRoutes";
 import reminderRoutes from "./routes/reminderRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
 import notificationRoutes from "./routes/notificationRoutes";
+import authRoutes from "./routes/authRoutes";
+import { requireAuth } from "./middleware/auth";
 
 export function createApp(): Application {
   const app = express();
@@ -23,10 +25,13 @@ export function createApp(): Application {
     res.json({ success: true, message: "HackTrack API is running" });
   });
 
-  app.use("/api/hackathons", hackathonRoutes);
-  app.use("/api/reminders", reminderRoutes);
-  app.use("/api/dashboard", dashboardRoutes);
-  app.use("/api/notifications", notificationRoutes);
+  app.use("/api/auth", authRoutes);
+
+  // Everything below requires a valid login
+  app.use("/api/hackathons", requireAuth, hackathonRoutes);
+  app.use("/api/reminders", requireAuth, reminderRoutes);
+  app.use("/api/dashboard", requireAuth, dashboardRoutes);
+  app.use("/api/notifications", requireAuth, notificationRoutes);
 
   // 404 handler
   app.use((_req: Request, res: Response) => {

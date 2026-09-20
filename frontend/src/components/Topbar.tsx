@@ -1,7 +1,8 @@
-import { Menu, Moon, Sun, Search } from "lucide-react";
+import { Menu, Moon, Sun, Search, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useThemeStore } from "@/store/themeStore";
+import { useAuthStore } from "@/store/authStore";
 
 interface TopbarProps {
   onMenuClick: () => void;
@@ -9,8 +10,14 @@ interface TopbarProps {
 
 export default function Topbar({ onMenuClick }: TopbarProps) {
   const { theme, toggleTheme } = useThemeStore();
+  const { user, logout } = useAuthStore();
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate("/login", { replace: true });
+  }
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -46,6 +53,19 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
       >
         {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </button>
+
+      {user && (
+        <div className="hidden items-center gap-2 sm:flex">
+          <span className="text-sm text-[var(--color-text-muted)]">{user.name}</span>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm hover:bg-[var(--color-bg)]"
+            aria-label="Log out"
+          >
+            <LogOut className="h-4 w-4" /> Log out
+          </button>
+        </div>
+      )}
     </header>
   );
 }
